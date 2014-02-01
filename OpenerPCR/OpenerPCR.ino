@@ -52,11 +52,18 @@ void loop()
   digitalWrite(pin_h_bridge_H1,LOW);
   digitalWrite(pin_h_bridge_H2,LOW);
 
+  const double value = analogRead(pin_thermistor);
+  const double temperature = 1.04*exp(0.0045 * value);
+  Serial.print("resistance : ");
+  Serial.print(value);
+  Serial.print(" - temp : ");
+  Serial.println(temperature);
+
+  lcd.setCursor(0,0);
+  lcd.print(value);
 
   lcd.setCursor(1,0);
-  const int t = analogRead(pin_thermistor);
-  lcd.print(t);
+  lcd.print(temperature);
   
-  Serial.write(t);
   delay(1000);
 }
