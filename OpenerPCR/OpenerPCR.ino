@@ -1,3 +1,6 @@
+#include <Serial.h>
+
+
 const int pin_h_bridge_L1 = 2;
 const int pin_h_bridge_L2 = 3;
 const int pin_h_bridge_H1 = 4;
@@ -11,6 +14,8 @@ const int pin_lcd_d4 =  10; //Arduino pin that connects to D4  pin of LCD displa
 const int pin_lcd_d5 =  11; //Arduino pin that connects to D5  pin of LCD display
 const int pin_lcd_d6 =  12; //Arduino pin that connects to D6  pin of LCD display
 const int pin_lcd_d7 =  13; //Arduino pin that connects to D7  pin of LCD display
+
+const int pin_thermistor = A0;
 
 LiquidCrystal lcd(
   pin_lcd_rs,
@@ -27,13 +32,16 @@ void setup()
   pinMode(pin_h_bridge_L2,OUTPUT);
   pinMode(pin_h_bridge_H1,OUTPUT);
   pinMode(pin_h_bridge_H2,OUTPUT);
+  pinMode(pin_thermistor,INPUT);
 
   lcd.begin(16,2);
   lcd.clear();
   lcd.setCursor(0,0);  
   lcd.print("        Hello");
   lcd.setCursor(0,1);  
-  lcd.print("        DIYBio");
+  lcd.print("        DIYbio");
+  
+  Serial.begin(4800);
 }
 
 void loop()
@@ -44,8 +52,11 @@ void loop()
   digitalWrite(pin_h_bridge_H1,LOW);
   digitalWrite(pin_h_bridge_H2,LOW);
 
-//  lcd.setCursor(1,0);
-  //lcd.print(millis());
 
+  lcd.setCursor(1,0);
+  const int t = analogRead(pin_thermistor);
+  lcd.print(t);
+  
+  Serial.write(t);
   delay(1000);
 }
