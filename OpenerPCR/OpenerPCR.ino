@@ -1,4 +1,4 @@
-#include <Serial.h>
+//#include <Serial.h>
 
 
 const int pin_h_bridge_L1 = 2;
@@ -44,6 +44,13 @@ void setup()
   Serial.begin(4800);
 }
 
+double ReadTemperature()
+{
+  const double x = static_cast<double>(analogRead(pin_thermistor));
+  const double temperature = 1.04*exp(0.0045 * x);
+  return temperature;
+}
+
 void loop()
 {
 
@@ -51,18 +58,12 @@ void loop()
   digitalWrite(pin_h_bridge_L2,LOW);
   digitalWrite(pin_h_bridge_H1,LOW);
   digitalWrite(pin_h_bridge_H2,LOW);
-
-  const double value = analogRead(pin_thermistor);
-  const double temperature = 1.04*exp(0.0045 * value);
-  Serial.print("resistance : ");
-  Serial.print(value);
+  const double temperature = ReadTemperature();
   Serial.print(" - temp : ");
   Serial.println(temperature);
-
   lcd.setCursor(0,0);
-  lcd.print(value);
-
-  lcd.setCursor(1,0);
+  lcd.print("T = ");
+  lcd.setCursor(0,1);
   lcd.print(temperature);
   
   delay(1000);
