@@ -2,10 +2,8 @@
 #include <math.h>
 
 
-const int pin_h_bridge_L1 = 2;
-const int pin_h_bridge_L2 = 3;
-const int pin_h_bridge_H1 = 4;
-const int pin_h_bridge_H2 = 5;
+const int pin_relay_L1 = 2;
+const int pin_relay_L2 = 3;
 
 #include <LiquidCrystal.h>
 
@@ -29,10 +27,8 @@ LiquidCrystal lcd(
 
 void setup()
 {
-  pinMode(pin_h_bridge_L1,OUTPUT);
-  pinMode(pin_h_bridge_L2,OUTPUT);
-  pinMode(pin_h_bridge_H1,OUTPUT);
-  pinMode(pin_h_bridge_H2,OUTPUT);
+  pinMode(pin_relay_L1,OUTPUT);
+  pinMode(pin_relay_L2,OUTPUT);
   pinMode(pin_thermistor,INPUT);
 
   lcd.begin(16,2);
@@ -45,26 +41,21 @@ void setup()
   Serial.begin(4800);
 }
 
+//function to read the temperature 
 double ReadTemperature()
 {
   const float  a = -4.9145424779468669;
   const float  b = -1.0664166888283678E+03;
   const float  c =  5.7516561818484919E-02;
   const float  offset = -2.2215338995072266E+01;
-
   const double value = static_cast<double>(analogRead(pin_thermistor));
   const double temperature = (a * value / (b + value) + c * value) + offset;
   return temperature;
 }
 
-void loop()
+//function to display temperature
+void DisplayTemperature();
 {
-
-  digitalWrite(pin_h_bridge_L1,LOW);
-  digitalWrite(pin_h_bridge_L2,LOW);
-  digitalWrite(pin_h_bridge_H1,LOW);
-  digitalWrite(pin_h_bridge_H2,LOW);
-
   const double temperature = ReadTemperature();
   Serial.print("Temperature: ");
   Serial.println(temperature);
@@ -72,6 +63,46 @@ void loop()
   lcd.print("T = ");
   lcd.setCursor(9,1);
   lcd.print(temperature);
+  //delay(1); //Really needed?
+}
+
+void loop()
+{
+  const int time_hot_sec = 5;
+  const int time_low_sec = 5;
+  const double temp_hot = 40.0;
+  const double temp_low = 25.0;
+  const double temperature = ReadTemperature();
   
-  delay(1000);
+  //while temp is below hot target, continue heating
+  while(temperature < temp_hot)
+  {
+    //assuming this is heating
+    digitalWrite(pin_h_bridge_L1,LOW);
+    digitalWrite(pin_h_bridge_L2,HIGH);
+  
+    //display temperature
+    DisplayTemperature();
+  }
+  
+  //hold for hot time
+  digitalWrite(pin_h_bridge_L1,LOW);
+  digitalWrite(pin_h_bridge_L2,LOW);
+  delay(time_hot_sec*1000);
+  
+  //while temp is below low target, continue cooling
+  while(temperature > temp_low)
+  {
+    //assuming this is cooling
+    digitalWrite(pin_h_bridge_L1,HIGH);
+    digitalWrite(pin_h_bridge_L2,LOW);
+  
+    //display temperature
+    DisplayTemperature();
+  }
+  
+  //hold for cold time
+  digitalWrite(pin_h_bridge_L1,LOW);
+  digitalWrite(pin_h_bridge_L2,LOW);
+  delay(time_low_sec*1000);
 }
