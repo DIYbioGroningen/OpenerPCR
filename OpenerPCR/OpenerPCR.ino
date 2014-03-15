@@ -41,7 +41,6 @@ void setup()
   Serial.begin(4800);
 }
 
-//function to read the temperature 
 double ReadTemperature()
 {
   const float  a = -4.9145424779468669;
@@ -53,8 +52,7 @@ double ReadTemperature()
   return temperature;
 }
 
-//function to display temperature
-void DisplayTemperature();
+void DisplayTemperature()
 {
   const double temperature = ReadTemperature();
   Serial.print("Temperature: ");
@@ -66,43 +64,50 @@ void DisplayTemperature();
   //delay(1); //Really needed?
 }
 
+void Heating()
+{
+  digitalWrite(pin_relay_L1,LOW);
+  digitalWrite(pin_relay_L2,HIGH);
+}
+
+void Cooling()
+{
+  digitalWrite(pin_relay_L1,HIGH);
+  digitalWrite(pin_relay_L2,LOW);
+}
+
+void HoldTemperature(const int hold_time_sec)
+{
+  digitalWrite(pin_relay_L1,LOW);
+  digitalWrite(pin_relay_L2,LOW);
+  delay(hold_time_sec*1000);
+}
+
 void loop()
 {
-  const int time_hot_sec = 5;
-  const int time_low_sec = 5;
+  const int hold_time_hot_sec = 5;
+  const int hold_time_low_sec = 5;
   const double temp_hot = 40.0;
   const double temp_low = 25.0;
   const double temperature = ReadTemperature();
   
-  //while temp is below hot target, continue heating
+  //while temp is below hot target, continue heating and disply temperature
   while(temperature < temp_hot)
   {
-    //assuming this is heating
-    digitalWrite(pin_h_bridge_L1,LOW);
-    digitalWrite(pin_h_bridge_L2,HIGH);
-  
-    //display temperature
+    Heating();
     DisplayTemperature();
   }
   
   //hold for hot time
-  digitalWrite(pin_h_bridge_L1,LOW);
-  digitalWrite(pin_h_bridge_L2,LOW);
-  delay(time_hot_sec*1000);
+  HoldTemperature(hold_time_hot_sec);
   
-  //while temp is below low target, continue cooling
+  //while temp is below low target, continue cooling and display temperature
   while(temperature > temp_low)
   {
-    //assuming this is cooling
-    digitalWrite(pin_h_bridge_L1,HIGH);
-    digitalWrite(pin_h_bridge_L2,LOW);
-  
-    //display temperature
+    Cooling();
     DisplayTemperature();
   }
   
   //hold for cold time
-  digitalWrite(pin_h_bridge_L1,LOW);
-  digitalWrite(pin_h_bridge_L2,LOW);
-  delay(time_low_sec*1000);
+  HoldTemperature(hold_time_low_sec);
 }
