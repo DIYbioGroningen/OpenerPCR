@@ -1,4 +1,7 @@
+#include <Arduino.h>
+
 //#include <Serial.h>
+
 #include <math.h>
 
 const int pin_relay_L1 = 2;
@@ -32,11 +35,11 @@ void setup()
 
   lcd.begin(16,2);
   lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Hello");
-  lcd.setCursor(0,1);
-  lcd.print("DIYbio");
-  
+  //lcd.setCursor(0,0);
+  //lcd.print("Hello");
+  //lcd.setCursor(0,1);
+  //lcd.print("DIYbio");
+
   Serial.begin(4800);
 }
 
@@ -51,73 +54,181 @@ double ReadTemperature()
   return temperature;
 }
 
+void DisplayPhase(const char * const a, const char * const b)
+{
+  lcd.setCursor(0,0);
+  lcd.print("        ");
+  lcd.setCursor(0,0);
+  lcd.print(a);
+  lcd.setCursor(0,1);
+  lcd.print("        ");
+  lcd.setCursor(0,1);
+  lcd.print(b);
+}
+
 void DisplayTemperature()
 {
   const double temperature = ReadTemperature();
-  Serial.print("Temperature: ");
-  Serial.println(temperature);
+  //Serial.print("Temperature: ");
+  //Serial.println(temperature);
   lcd.setCursor(9,0);
   lcd.print("T = ");
   lcd.setCursor(9,1);
   lcd.print(temperature);
-  //delay(1); //Really needed?
 }
 
-void Heating(const double target_temperature)
-{
-  if(ReadTemperature() < target_temperature)
-  {
-    digitalWrite(pin_relay_L1,LOW);
-    digitalWrite(pin_relay_L2,HIGH);
-    DisplayTemperature();
-  }
-}
-
-void Cooling(const double target_temperature)
-{
-  if(ReadTemperature() > target_temperature)
-  {
-    digitalWrite(pin_relay_L1,HIGH);
-    digitalWrite(pin_relay_L2,LOW);
-    DisplayTemperature();
-  }
-}
-
-void HoldTemperature(const int hold_time_sec)
+void Heat()
 {
   digitalWrite(pin_relay_L1,HIGH);
   digitalWrite(pin_relay_L2,HIGH);
-  DisplayTemperature();
-  delay(hold_time_sec*1000);
 }
 
+void Cool()
+{
+  digitalWrite(pin_relay_L1,LOW);
+  digitalWrite(pin_relay_L2,LOW);
+}
+
+void Rest()
+{
+  digitalWrite(pin_relay_L1,LOW);
+  digitalWrite(pin_relay_L2,HIGH);
+}
+
+/*
 void CycleTemperature(const double cold_target_temperature, const int hold_time_cold, const double hot_target_temperature, const int hold_time_hot, int cycles)
 {
   for(int i =0; i!=cycles; ++i)
   {
     DisplayTemperature();
-    Heating(hot_target_temperature);
+    Heating();
     DisplayTemperature();
-    HoldTemperature(hold_time_hot);
+    HoldTemperature();
     DisplayTemperature();
-    Cooling(cold_target_temperature);
+    Cooling();
     DisplayTemperature();
-    HoldTemperature(hold_time_cold);  
+    HoldTemperature();
   }
 }
+*/
 
 void loop()
 {
-  const int cycles = 6;
-  const int hold_time_hot_sec = 3;
-  const int hold_time_cold_sec = 3;
-  const double temp_hot = 0.0;
-  const double temp_cold = 80.0;
+  const int n_cycles = 6;
+  const int hold_time_denaturation_msec = 3000;
+  const int hold_time_elongation_msec = 3000;
+  const int hold_time_annealing_msec = 3000;
+  const double temperature_annealing_celsius = 25.0; //68.0;
+  const double temperature_elongation_celsius = 30.0; //72.0;
+  const double temperature_denaturation_celsius = 35.0; //95.0;
+
   const double temperature = ReadTemperature();
-  
-      digitalWrite(pin_relay_L1,LOW);
-    digitalWrite(pin_relay_L2,HIGH);
+
+  digitalWrite(pin_relay_L1,LOW);
+  digitalWrite(pin_relay_L2,HIGH);
   //Heating(temp_hot);
   //CycleTemperature(temp_hot, hold_time_hot_sec, temp_cold, hold_time_cold_sec, cycles);
-  
+
+
+  //Perform a cycle
+  for (int cycle = 0; cycle!= n_cycles; ++cycle)
+  {
+    //Stage 1: denaturation
+    {
+      //Heat to denaturation
+      while (ReadTemperature() < temperature_denaturation_celsius)
+      {
+        Heat();
+        DisplayTemperature();
+        DisplayPhase("Heat to","Den.");
+        delay(1);
+      }
+      //Stay at denaturation
+      const int start_time_msec = millis();
+      while (1)
+      {
+        const int current_time_msec = millis();
+        const int duration_msec = current_time_msec - start_time_msec;
+        Serial.println(duration_msec);
+        if (duration_msec > hold_time_denaturation_msec) break;
+
+        if(ReadTemperature() < temperature_denaturation_celsius)
+        {
+          Heat();
+        }
+        else if(ReadTemperature() > temperature_denaturation_celsius)
+        {
+          Rest();
+        }
+        DisplayTemperature();
+        DisplayPhase("Stay at","Den.");
+        delay(10);
+      }
+
+    }
+    //Stage 2: annealing
+    {
+      //Heat to annealing
+      while (ReadTemperature() > temperature_annealing_celsius)
+      {
+        Cool();
+        DisplayTemperature();
+        DisplayPhase("Cool to","Ann.");
+        delay(1);
+      }
+      //Stay at annealing
+      const int start_time_msec = millis();
+      while (1)
+      {
+        const int current_time_msec = millis();
+        const int duration_msec = current_time_msec - start_time_msec;
+        Serial.println(duration_msec);
+        if(duration_msec > hold_time_annealing_msec) break;
+
+        DisplayPhase("Stay at","Ann.");
+        if(ReadTemperature() < temperature_annealing_celsius)
+        {
+          Heat();
+        }
+        else if(ReadTemperature() > temperature_annealing_celsius)
+        {
+          Rest();
+        }
+        DisplayTemperature();
+        delay(10);
+      }
+    }
+
+    //Stage 3: elongation
+    {
+      //Heat to elongation
+      while (ReadTemperature() < temperature_elongation_celsius)
+      {
+        Heat();
+        DisplayTemperature();
+        DisplayPhase("Heat to","Elo.");
+        delay(1);
+      }
+      //Stay at elongation
+      const int start_time_msec = millis();
+      while (1)
+      {
+        const int current_time_msec = millis();
+        const int duration_msec = current_time_msec - start_time_msec;
+        Serial.println(duration_msec);
+        if(duration_msec > hold_time_elongation_msec) break;
+        DisplayPhase("Stay at","Elo.");
+        if(ReadTemperature() < temperature_elongation_celsius)
+        {
+          Heat();
+        }
+        else if(ReadTemperature() > temperature_elongation_celsius)
+        {
+          Rest();
+        }
+        DisplayTemperature();
+        delay(1);
+      }
+    }
+  }
 }
