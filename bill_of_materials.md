@@ -1,15 +1,14 @@
-
-The [[OpenPCR]] Electronics group
-
-===== Bill Of Materials =====
+Bill Of Materials 
+=================
 
 Consist of components and autonomous parts
 
-==== Components ====
+Components
+----------
 
 Consist of connectors and active/passive components
 
-=== Connectors ===
+#Connectors
 
 We did not use any connectors. Instead we soldered everything directly to the PCB
 
@@ -23,7 +22,7 @@ We did not use any connectors. Instead we soldered everything directly to the PC
 | 2 | Molex | 16020101 | Terminal connector, 34 AWG | Solder this instead |
 | 1 | Molex | 50-57-9502 | Terminal housing, 2 pin | Solder this instead |
 
-=== Active/passive components ===
+# Active/passive components
 
 {| class="wikitable" 
 |- # 
@@ -139,7 +138,7 @@ We did not use any connectors. Instead we soldered everything directly to the PC
 |
 |}
 
-==== Autonomous parts ====
+#Autonomous parts
 
 Things to connect components with/on/to
 
@@ -174,7 +173,7 @@ Things to connect components with/on/to
 
 Original wiring of HD44780 compatible LCD display OpenPCR used [http://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller#Architecture Wikipedia]:
 
-<code>
+```
 1    Ground
 2    VCC (+3.3 to +5V)
 3    Contrast adjustment (VO)
@@ -191,6 +190,6 @@ Original wiring of HD44780 compatible LCD display OpenPCR used [http://en.wikipe
 14    Bit 7
 15    Backlight Anode (+)
 16    Backlight Cathode (-)
-</code>
+```
 
 The LCD that was ordered has exactly the same interface (that is: its pins serve exactly the same function)
