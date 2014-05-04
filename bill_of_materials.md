@@ -49,7 +49,7 @@ Components
     <td>1</td><td>ST</td><td>VNH3SP30</td><td>H-Bridge IC</td><td>Yes</td><td><a href="http://www.okaphone.com/artikel.asp?id=476678 Okaphone VNH3SP30-E">Okaphone</a></td>
   </tr>
   <tr>
-    <td>1</td><td>Custom</td><td></td><td>Peltier, Qmax = 84 W, dT = 78 K, Imax = 7.8 A</td><td>No</td><td><a href="http://www.okaphone.com/artikel.asp?id=471426 Okaphone PELTIER21">Okaphone</a>: Qmax = 71 W, dT = 67 K, Imax = 8.0 A</td>
+    <td>1</td><td>Custom</td><td></td><td>Peltier, Qmax = 84 W, dT = 78 K, Imax = 7.8 A</td><td>No</td><td><a href="http://www.okaphone.com/artikel.asp?id=471426">Okaphone (PELTIER 21)</a>: Qmax = 71 W, dT = 67 K, Imax = 8.0 A</td>
   </tr>
   <tr>
     <td>1</td><td>US Sensor</td><td>USP11553 rev none</td><td>Thermistor / PTC</td><td>No</td><td>HEISSLEITER S861/5K/1%/F40, 541-086-23, 500670, EAN: ...46 6996 O (the character capital-O)  3/18, 10671-348, 9549804009 546432717</td>
