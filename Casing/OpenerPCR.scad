@@ -1,7 +1,8 @@
 // OpenerPCR case.
-// Ver 0.2
-// by alc_djin and Winand 
+// Ver 0.3
+// by DIYbio Groningen
 
+include <OpenrPCR_logo.scad>;
 // Variables
 W = 90;
 H = 170;
@@ -21,6 +22,15 @@ module screw_hole(){
 	cylinder(h=4*Tk, r=shr);
 }
 
+module screw_holder(){
+	difference(){
+		cylinder(h=4*Tk, r=cr);
+			translate([0,0,-Tk]){
+				cylinder(h=6*Tk, r=shr);
+			}
+	}	
+}
+
 module LCD_hole(){
 	cube(size = [LCD_W,LCD_H,4*Tk]);
 }
@@ -30,6 +40,30 @@ module panel(){
   		cube([W,H,Tk]);
   		// rounded corners
   		cylinder(h=Tk,r=cr);
+	}
+}
+
+module OpenerPCR_logo()
+{
+	difference(){
+		cylinder(Tk,W/2,W/2);
+		translate([0,0,-Tk]){
+			cylinder(4*Tk,W/2.5,W/2.5);
+		}
+	}
+	difference(){
+		translate([-W/3,-W/10,0]){
+			cube([W/1.5,W/2,Tk]);
+		}
+		translate([0,-W/4,-Tk]){
+			cylinder(4*Tk,W/2,W/2);
+		}
+		translate([-W/3,W/2,-Tk]){
+			cylinder(4*Tk,W/6,W/6);
+		}
+		translate([W/3,W/2,-Tk]){
+			cylinder(4*Tk,W/6,W/6);
+		}
 	}
 }
 
@@ -53,6 +87,8 @@ module front_panel(){
 		translate([W-offset,H-offset,-Tk]){ // bottom-left
 		    screw_hole();
 		}
+		translate([W/2,H/1.4,-0.5*Tk])
+			OpenerPCR_logo();
 	}
 }
 
@@ -110,21 +146,23 @@ module air_intake(){
 
 // Body
 module body(){
-	difference(){
+	difference(){		
 		// Solid
 		translate([0,0,Tk])	{
 			minkowski() {
   				cube([W,H,Z-Tk]);
   				// rounded corners
   				cylinder(r=cr,h=Tk);
+				// al rounded
+				//sphere(cr);
 			}
-		}
+		}	
 		// Void
 		translate([Tk,Tk,0]){
 			minkowski() {
-  				cube([W-2*Tk,H-2*Tk,Z-2*Tk]);
-  				// rounded corners
-  				cylinder(r=cr-Tk,h=Tk);
+	  			cube([W-2*Tk,H-2*Tk,Z-2*Tk]);
+	  			// rounded corners
+	  			cylinder(r=cr-Tk,h=Tk);
 			}
 		}
 		top_hole();
@@ -136,12 +174,39 @@ module body(){
 		fan_holes();
 		}
 	}
+	difference(){
+		union(){
+			translate([0,0,Tk]){
+				screw_holder();
+			}
+			translate([W,0,Tk]){
+				screw_holder();
+			}	
+			translate([W,H,Tk]){
+				screw_holder();
+			}
+			translate([0,H,Tk]){
+				screw_holder();
+			}
+		}
+		top_hole();
+	}
 }
 
 
-////// Build
-translate([0,0,-Tk]){
-	front_panel();
+
+// Build
+difference(){
+	translate([0,0,-Tk]){
+		front_panel();
+	}
+	translate([W/2,H/3,0]){
+		rotate([180,0,0]){
+			scale([0.5,0.5,1]){
+				OpenerPCR_full_logo(10);
+			}
+		}
+	}
 }
 body();
 
