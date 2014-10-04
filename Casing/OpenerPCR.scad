@@ -1,22 +1,27 @@
 // OpenerPCR case.
-// Ver 0.3
+// Ver 0.3.1
 // by DIYbio Groningen
+include <OpenrPCR_logo.scad>
 
-include <OpenrPCR_logo.scad>;
-// Variables
-W = 90;
-H = 170;
-Z = 90;
-Tk = 3; // thickness
-cr = 15; // corner radius
-total_H = H+2*cr;
-total_W = W+2*cr;
-LCD_H = 25;
-LCD_W = 70;
-shr = 3;
-offset = cr < 1 ? Tk+shr : 0;
-fd = 90; // fan diameter
- 
+//Build type:
+//1: complete casing
+//2: back panel only, for printing
+//3: front panel only, for printing
+build_type = 1; 
+
+W =  90; //Inner width of the casing in mm
+H = 170; //Inner height of the casing in mm
+Z =  90; //Inner depth of the casing in mm
+Tk = 3;  //Thickness of casing material in mm, e.g. perspex is 3 mm
+cr = 15; //Corner radius in mm
+total_H = H+2*cr; //Outer height of the casing in mm
+total_W = W+2*cr; //Outer width of the casing in mm
+LCD_H = 25; //Width of the LCD display in mm
+LCD_W = 70; //Height of the LCD display in mm
+shr = 3; //Screw hole radius in mm
+offset = cr < 1 ? Tk+shr : 0; //The least distance a screw hole must be from the side
+fd = 90; //Fan diameter in mm
+
 
 module screw_hole(){
 	cylinder(h=4*Tk, r=shr);
@@ -195,21 +200,33 @@ module body(){
 
 
 
-// Build
-difference(){
-	translate([0,0,-Tk]){
-		front_panel();
-	}
-	translate([W/2,H/3,0]){
-		rotate([180,0,0]){
-			scale([0.5,0.5,1]){
-				OpenerPCR_full_logo(10);
+//Building
+if (build_type == 1)
+{
+   //Complete casing
+	difference(){
+		translate([0,0,-Tk]){
+			front_panel();
+		}
+		translate([W/2,H/3,0]){
+			rotate([180,0,0]){
+				scale([0.5,0.5,1]){
+					OpenerPCR_full_logo(10);
+				}
 			}
 		}
 	}
+	body();
 }
-body();
-
-
+else if (build_type == 2)
+{
+  //Body only
+  body();
+}
+else if (build_type == 3)
+{
+  //Front panel only
+  front_panel();
+}
 
 
