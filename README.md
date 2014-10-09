@@ -2,6 +2,7 @@ OpenerPCR is a project by DIYbio Groningen to create an open PCR machine (also c
 
  * [Bill of materials](bill_of_materials.md)
 
+![Casing](Casing/Casing.jpg)
 ![Working](Pictures/OpenerPcr_1_0_working.jpg)
 ![Full](Pictures/OpenerPcr_1_0_full.jpg)
 ![Detail](Pictures/OpenerPcr_1_0_detail.jpg)

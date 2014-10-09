@@ -3,11 +3,10 @@
 // by DIYbio Groningen
 include <OpenrPCR_logo.scad>
 
-//Build type:
-//1: complete casing
-//2: back panel only, for printing
-//3: front panel only, for printing
-build_type = 1; 
+//Build options
+has_front = true;
+has_back = false;
+has_components = false;
 
 W =  90; //Inner width of the casing in mm
 H = 170; //Inner height of the casing in mm
@@ -21,6 +20,12 @@ LCD_W = 70; //Height of the LCD display in mm
 shr = 3; //Screw hole radius in mm
 offset = cr < 1 ? Tk+shr : 0; //The least distance a screw hole must be from the side
 fd = 90; //Fan diameter in mm
+Pcb_W_outer =  90; //Outer width of PCB in mm, the width of the box of air the PCB is in
+Pcb_H_outer = 170; //Outer height of PCB in mm, the height of the box of air the PCB is in
+Pcb_D_outer =  40; //Outer depth of PCB in mm, the depth of the box of air the PCB is in
+Pcb_W = Pcb_W_outer; //Width of PCB in mm, the width of the box of air the PCB is in
+Pcb_H = Pcb_H_outer; //Height of PCB in mm, the height of the box of air the PCB is in
+Pcb_D = 2; //Depth of PCB in mm, the depth of the box of air the PCB is in
 
 
 module screw_hole(){
@@ -201,7 +206,7 @@ module body(){
 
 
 //Building
-if (build_type == 1)
+if (has_front)
 {
    //Complete casing
 	difference(){
@@ -216,17 +221,16 @@ if (build_type == 1)
 			}
 		}
 	}
+}
+if (has_back)
+{
 	body();
 }
-else if (build_type == 2)
+if (has_components)
 {
-  //Body only
-  body();
+  color([10,1,1]) {
+    cube([Pcb_W_outer,Pcb_H_outer,Pcb_D_outer]);
+  }
+//  cube([Pcb_W,Pcb_H,Pcb_D]);
+  //}
 }
-else if (build_type == 3)
-{
-  //Front panel only
-  front_panel();
-}
-
-
