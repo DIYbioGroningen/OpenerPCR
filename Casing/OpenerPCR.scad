@@ -85,6 +85,25 @@ module OpenerPCR_logo()
   }
 }
 
+module plus_symbol(){
+	cube([1,led_radius,Tk]);
+	rotate([0,0,90]){
+		cube([1,led_radius,Tk]);
+	}
+}
+
+module power_symbol(){
+	cylinder(Tk,led_radius*2,led_radius*2);
+	difference(){
+    	translate([0,0,-Tk]){
+      	cylinder(Tk,led_radius*2,led_radius*2);
+    	}
+	}
+	translate([-0.5,-led_radius*3,0]){
+		cube([1,led_radius*2,Tk]);
+	}
+}
+
 module front_panel(){
   difference(){  
     panel();
@@ -116,6 +135,34 @@ module front_panel(){
       translate([(W/2) - led_spacing,(H/1.4) - led_spacing,-0.5*Tk]){ led_hole(); } //Left bottom
       translate([(W/2) + led_spacing,(H/1.4) +           0,-0.5*Tk]){ led_hole(); } //Right top
       translate([(W/2) + led_spacing,(H/1.4) - led_spacing,-0.5*Tk]){ led_hole(); } //Right bottom
+      /*
+
+     5V          5V
+     |           |
+     O  +--O--+  O
+     |  |     |  |
+     |  | MMM |  |
+     +--+-MMM +--+
+     |  | MMM |  |
+     |  |     |  |
+     O  +--O--+  O
+     |           |
+     GND        GND
+
+      */
+      difference() { translate([(W/2) - (1.0 * led_spacing),(H/1.4) - (0.5 * led_spacing),-0.5*Tk]){ cube([2 * led_spacing,1,Tk]); }} //Center line
+      difference() { translate([(W/2) - (0.25 * led_spacing),(H/1.4) - (0.75 * led_spacing),-0.5*Tk]){ cube([0.5 * led_spacing,0.5 * led_spacing,Tk]); }} //Motor
+
+      difference() { translate([(W/2) - (0.5 * led_spacing),(H/1.4) - led_spacing,-0.5*Tk]){ cube([led_spacing,1,Tk]); }} //Top line
+      difference() { translate([(W/2) - (0.5 * led_spacing),(H/1.4) +           0,-0.5*Tk]){ cube([led_spacing,1,Tk]); }} //Bottom line
+      difference() { translate([(W/2) - (0.5 * led_spacing),(H/1.4) - led_spacing,-0.5*Tk]){ cube([1,led_spacing + 1,Tk]); }} //Left line
+      difference() { translate([(W/2) + (0.5 * led_spacing),(H/1.4) - led_spacing,-0.5*Tk]){ cube([1,led_spacing + 1,Tk]); }} //Right line
+
+      difference() { translate([(W/2) - (1.0 * led_spacing),(H/1.4) - (1.5 *led_spacing),-0.5*Tk]){ cube([1,2 * led_spacing,Tk]); }} //Left longer 5 V and GND line
+      difference() { translate([(W/2) + (1.0 * led_spacing),(H/1.4) - (1.5 *led_spacing),-0.5*Tk]){ cube([1,2 * led_spacing,Tk]); }} //Right longer 5 V and GND line
+
+		difference() { translate([(W/2) +           0,(H/1.4) + (1.75 *led_spacing),-0.5*Tk]){ power_symbol(); }} //power symbol
+		difference() { translate([(W/2) - led_spacing,(H/1.4) +           0,-0.5*Tk]) { plus_symbol(); }} //plus symbol
     }
   }
 }
