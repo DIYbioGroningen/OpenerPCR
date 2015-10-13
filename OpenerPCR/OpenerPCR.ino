@@ -36,48 +36,79 @@
 ///////////////////////////////////////////////////////////////////
 
 // Pin 2 and 3 control the relay board: relay1 and relay2 respectively.
-int relay1 = 2;
-int relay2 = 3;
+const int relay_pin1 = 2;
+const int relay_pin2 = 3;
+const int thermistor_pin = A0;
 
-// the setup routine runs once when you press reset:
+const double denaturation_temperature_celcius = 95.0;
+const double annealing_temperature_celcius = 60.0;
+const double extension_temperature_celcius = 72.0;
+
+const double denaturation_time_secs = 30;
+const double annealing_time_secs = 20;
+const double extension_time_secs = 10;
+
 void setup() {                
-  // initialize the digital pin as an output.
-  pinMode(relay1, OUTPUT);     
-  pinMode(relay2, OUTPUT);     
+  pinMode(relay_pin1, OUTPUT);     
+  pinMode(relay_pin2, OUTPUT);     
+  pinMode(thermistor_pin,INPUT);
 }
 
-// the loop routine runs over and over again forever:
-void loop() {
-  //IMPORTANT: face#1 is per definition touching the tube block
-  //(metal block with the wells for the PCR tubes)
-  
-  //Relay1 NO
-  //Relay2 NC
-  //face#1 is heating
-  digitalWrite(relay1, LOW);
-  digitalWrite(relay2, HIGH);
-  delay(60000); //time during which the metal block heating
-  
-  //Relay1 NC
-  //Relay2 NC
-  //face#1 is NOT cooling NEITHER heating
-  digitalWrite(relay1, HIGH);
-  digitalWrite(relay2, HIGH);
-  delay(2000); //time during which the metal block temp. is not contrlled
 
+void cool() {
   //Relay1 NC
   //Relay2 NO
   //face#1 is cooling
-  digitalWrite(relay1, HIGH);
-  digitalWrite(relay2, LOW);
-  delay(60000); //time during which the metal block cooled
-    
-  //Relay1 NC
-  //Relay2 NC
-  //face#1 is NOT cooling NEITHER heating
-  digitalWrite(relay1, HIGH);
-  digitalWrite(relay2, HIGH);
-  delay(10000); //time during which the metal block temp. is not contrlled
+  digitalWrite(relay_pin1, HIGH);
+  digitalWrite(relay_pin2, LOW);
+}
 
+void heat() {
+  //Relay1 NO
+  //Relay2 NC
+  //face#1 is heating
+  digitalWrite(relay_pin1, LOW);
+  digitalWrite(relay_pin2, HIGH);
+}
+
+double read_temperature() {
+  const int value = analogRead(thermistor_pin);
+  //Transform the range of value from [0,1023] to [0,100] degrees Celsius
+  const double t_stub 
+    = static_cast<double>(
+     map(value,0,1023,0,100)
+   );
+  return t_stub;
+}
+
+void go_to_temperature(const double target_temperature_celsius)
+{
+  const double current_temperature = read_temperature();
+  const double acceptable_temperature_difference_celsius = 1.0;
+  if (abs(target_temperature_celsius - current_temperature) 
+    < acceptable_temperature_difference_celsius)
+  {
+    return;
+  }
+  //Need to heat or cool to the target temperature
+  if (target_temperature_celsius > current_temperature)
+  {
+    cool();
+  }
+  else 
+  {
+    heat(); 
+  }
+}
+
+void loop() {
+  go_to_temperature(denaturation_temperature_celcius);
+  delay(denaturation_time_secs * 1000); //delay needs msecs
+  
+  go_to_temperature(annealing_temperature_celcius);
+  delay(annealing_time_secs * 1000); //delay needs msecs
+  
+  go_to_temperature(extension_temperature_celcius);
+  delay(extension_time_secs * 1000); //delay needs msecs
 }
 
